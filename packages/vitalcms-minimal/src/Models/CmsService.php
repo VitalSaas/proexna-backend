@@ -13,131 +13,132 @@ class CmsService extends Model
     use HasFactory, SoftDeletes, HasSlug;
 
     protected $fillable = [
-        "title",
-        "slug", 
-        "description",
-        "short_description",
-        "price",
-        "price_description",
-        "icon",
-        "image",
-        "images_gallery",
-        "category",
-        "featured",
-        "is_active",
-        "sort_order",
-        "meta_data",
+        'title',
+        'slug',
+        'description',
+        'short_description',
+        'price',
+        'price_description',
+        'icon',
+        'image',
+        'category',
+        'featured',
+        'is_active',
+        'sort_order',
+        'meta_data',
     ];
 
     protected $casts = [
-        "featured" => "boolean",
-        "is_active" => "boolean",
-        "sort_order" => "integer",
-        "meta_data" => "array",
-        "images_gallery" => "array",
+        'featured' => 'boolean',
+        'is_active' => 'boolean',
+        'sort_order' => 'integer',
+        'meta_data' => 'array',
     ];
 
+    /**
+     * Get the table name with prefix.
+     */
     public function getTable(): string
     {
-        return config("vitalcms.table_prefix", "cms_") . "services";
+        return config('vitalcms.table_prefix', 'cms_') . 'services';
     }
 
+    /**
+     * Get the options for generating the slug.
+     */
     public function getSlugOptions(): SlugOptions
     {
         return SlugOptions::create()
-            ->generateSlugsFrom("title")
-            ->saveSlugsTo("slug")
+            ->generateSlugsFrom('title')
+            ->saveSlugsTo('slug')
             ->doNotGenerateSlugsOnUpdate();
     }
 
+    /**
+     * Scope to get only active services.
+     */
     public function scopeActive($query)
     {
-        return $query->where("is_active", true);
+        return $query->where('is_active', true);
     }
 
+    /**
+     * Scope to get only featured services.
+     */
     public function scopeFeatured($query)
     {
-        return $query->where("featured", true);
+        return $query->where('featured', true);
     }
 
+    /**
+     * Scope to filter by category.
+     */
     public function scopeCategory($query, string $category)
     {
-        return $query->where("category", $category);
+        return $query->where('category', $category);
     }
 
+    /**
+     * Scope to order by sort order.
+     */
     public function scopeOrdered($query)
     {
-        return $query->orderBy("sort_order")->orderBy("title");
+        return $query->orderBy('sort_order')->orderBy('title');
     }
 
+    /**
+     * Get service image URL.
+     */
     public function getImageUrlAttribute(): ?string
     {
         if (!$this->image) {
             return null;
         }
-        return asset("storage/" . config("vitalcms.services.default_image_path", "services") . "/" . $this->image);
+
+        return asset('storage/' . config('vitalcms.services.default_image_path', 'services') . '/' . $this->image);
     }
 
-    public function getImagesGalleryUrlsAttribute(): array
-    {
-        if (!$this->images_gallery || !is_array($this->images_gallery)) {
-            return [];
-        }
-
-        return array_map(function ($image) {
-            // Remove double directory prefix if exists
-            $imagePath = str_replace("services/", "", $image);
-            return asset("storage/" . config("vitalcms.services.default_image_path", "services") . "/" . $imagePath);
-        }, $this->images_gallery);
-    }
-
-    public function getAllImagesAttribute(): array
-    {
-        $images = [];
-        
-        // Add main image if exists
-        if ($this->image_url) {
-            $images[] = $this->image_url;
-        }
-        
-        // Add gallery images
-        return array_merge($images, $this->images_gallery_urls);
-    }
-
+    /**
+     * Get formatted price.
+     */
     public function getFormattedPriceAttribute(): string
     {
         if (!$this->price) {
-            return "Consultar";
+            return 'Consultar';
         }
 
-        if (str_starts_with($this->price, "Desde")) {
+        // If price is already formatted (starts with "Desde $")
+        if (str_starts_with($this->price, 'Desde')) {
             return $this->price;
         }
 
+        // If it's a number, format it
         if (is_numeric($this->price)) {
-            return "Desde $" . number_format($this->price);
+            return 'Desde $' . number_format($this->price);
         }
 
         return $this->price;
     }
 
+    /**
+     * Get service icon (emoji or icon class).
+     */
     public function getIconDisplayAttribute(): string
     {
-        return $this->icon ?? "🌿";
+        return $this->icon ?? '🌿'; // Default garden emoji
     }
 
     /**
-     * Get all unique categories for filter options.
+     * Get available categories.
      */
     public static function getCategories(): array
     {
-        return static::whereNotNull("category")
-            ->where("category", "!=", "")
-            ->distinct()
-            ->pluck("category")
-            ->mapWithKeys(function ($category) {
-                return [$category => ucfirst($category)];
-            })
-            ->toArray();
+        return [
+            'diseño' => 'Diseño de Jardines',
+            'mantenimiento' => 'Mantenimiento',
+            'paisajismo' => 'Paisajismo',
+            'instalacion' => 'Instalación',
+            'consulta' => 'Consultoría',
+        ];
     }
 }

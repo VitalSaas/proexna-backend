@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test API Integration - PROEXNA</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        .hero-section {
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            background-size: cover;
+            background-position: center;
+            min-height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-align: center;
+        }
+        .service-card {
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            background: #f9f9f9;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        .loading {
+            text-align: center;
+            color: #666;
+            font-style: italic;
+        }
+        .error {
+            background: #ffebee;
+            border: 1px solid #f44336;
+            color: #d32f2f;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .success {
+            background: #e8f5e8;
+            border: 1px solid #4caf50;
+            color: #2e7d32;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        form {
+            display: grid;
+            gap: 15px;
+        }
+        input, textarea {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        button {
+            background: #4caf50;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌱 PROEXNA - Test de Integración API</h1>
+        <p>Esta página verifica que la integración entre el frontend y backend funcione correctamente.</p>
+    </div>
+
+    <div class="container">
+        <h2>Hero Sections</h2>
+        <div id="hero-sections-loading" class="loading">Cargando hero sections...</div>
+        <div id="hero-sections-error" class="error" style="display:none;"></div>
+        <div id="hero-sections-container"></div>
+    </div>
+
+    <div class="container">
+        <h2>Servicios</h2>
+        <div id="services-loading" class="loading">Cargando servicios...</div>
+        <div id="services-error" class="error" style="display:none;"></div>
+        <div id="services-container" class="grid"></div>
+    </div>
+
+    <div class="container">
+        <h2>Formulario de Contacto</h2>
+        <form id="contact-form">
+            <input type="text" name="name" placeholder="Nombre completo" required>
+            <input type="email" name="email" placeholder="Email" required>
+            <input type="tel" name="phone" placeholder="Teléfono (opcional)">
+            <textarea name="message" placeholder="Mensaje" rows="4" required></textarea>
+            <button type="submit" id="submit-btn">Enviar Mensaje</button>
+        </form>
+        <div id="contact-result"></div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:8000/api';
+
+        // Función para hacer peticiones API
+        async function apiRequest(endpoint, options = {}) {
+            try {
+                const response = await fetch(`${API_BASE}${endpoint}`, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...options.headers
+                    },
+                    ...options
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                return await response.json();
+            } catch (error) {
+                throw new Error(`Network error: ${error.message}`);
+            }
+        }
+
+        // Cargar Hero Sections
+        async function loadHeroSections() {
+            try {
+                const response = await apiRequest('/cms/hero-sections');
+
+                if (response.success && response.data) {
+                    const container = document.getElementById('hero-sections-container');
+                    container.innerHTML = response.data.map(hero => `
+                        <div class="hero-section" style="background: ${hero.backgroundImage || hero.gradient?.css || 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)'}">
+                            <div>
+                                <h3>${hero.title}</h3>
+                                <h4>${hero.subtitle || ''}</h4>
+                                <p>${hero.description || ''}</p>
+                                <div>
+                                    <button onclick="alert('${hero.buttonText}')">${hero.buttonText}</button>
+                                    <button onclick="alert('${hero.buttonSecondaryText}')">${hero.buttonSecondaryText}</button>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('');
+
+                    document.getElementById('hero-sections-loading').style.display = 'none';
+                } else {
+                    throw new Error('Invalid API response');
+                }
+            } catch (error) {
+                document.getElementById('hero-sections-loading').style.display = 'none';
+                const errorDiv = document.getElementById('hero-sections-error');
+                errorDiv.textContent = `Error: ${error.message}`;
+                errorDiv.style.display = 'block';
+            }
+        }
+
+        // Cargar Servicios
+        async function loadServices() {
+            try {
+                const response = await apiRequest('/cms/services');
+
+                if (response.success && response.data) {
+                    const container = document.getElementById('services-container');
+                    container.innerHTML = response.data.map(service => `
+                        <div class="service-card">
+                            <h3>${service.icon || '🌿'} ${service.title}</h3>
+                            <p><strong>Categoría:</strong> ${service.category_name}</p>
+                            <p>${service.short_description || ''}</p>
+                            ${service.formatted_price ? `<p><strong>Precio:</strong> ${service.formatted_price}</p>` : ''}
+                            ${service.featured ? '<span style="background: #4caf50; color: white; padding: 2px 8px; border-radius: 10px; font-size: 12px;">DESTACADO</span>' : ''}
+                        </div>
+                    `).join('');
+
+                    document.getElementById('services-loading').style.display = 'none';
+                } else {
+                    throw new Error('Invalid API response');
+                }
+            } catch (error) {
+                document.getElementById('services-loading').style.display = 'none';
+                const errorDiv = document.getElementById('services-error');
+                errorDiv.textContent = `Error: ${error.message}`;
+                errorDiv.style.display = 'block';
+            }
+        }
+
+        // Manejar formulario de contacto
+        document.getElementById('contact-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const submitBtn = document.getElementById('submit-btn');
+            const resultDiv = document.getElementById('contact-result');
+
+            // Obtener datos del formulario
+            const formData = new FormData(e.target);
+            const contactData = {
+                name: formData.get('name'),
+                email: formData.get('email'),
+                phone: formData.get('phone') || undefined,
+                message: formData.get('message')
+            };
+
+            // Mostrar estado de carga
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Enviando...';
+            resultDiv.innerHTML = '';
+
+            try {
+                const response = await apiRequest('/cms/contact', {
+                    method: 'POST',
+                    body: JSON.stringify(contactData)
+                });
+
+                if (response.success) {
+                    resultDiv.innerHTML = `
+                        <div class="success">
+                            <strong>¡Éxito!</strong> ${response.message}<br>
+                            <small>Referencia: ${response.data.reference}</small>
+                        </div>
+                    `;
+                    e.target.reset();
+                } else {
+                    throw new Error(response.message || 'Error al enviar el mensaje');
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="error">
+                        <strong>Error:</strong> ${error.message}
+                    </div>
+                `;
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Enviar Mensaje';
+            }
+        });
+
+        // Cargar datos al iniciar la página
+        document.addEventListener('DOMContentLoaded', () => {
+            loadHeroSections();
+            loadServices();
+        });
+    </script>
+</body>
+</html>

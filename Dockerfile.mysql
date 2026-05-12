@@ -1,0 +1,60 @@
+FROM dunglas/frankenphp:1-php8.4
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    git \
+    curl \
+    libpng-dev \
+    libonig-dev \
+    libxml2-dev \
+    libicu-dev \
+    libzip-dev \
+    default-mysql-client \
+    zip \
+    unzip \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install PHP extensions (one by one for better error handling)
+RUN docker-php-ext-install pdo_mysql
+RUN docker-php-ext-install exif
+RUN docker-php-ext-install pcntl
+RUN docker-php-ext-install bcmath
+RUN docker-php-ext-install gd
+RUN docker-php-ext-install intl
+RUN docker-php-ext-install zip
+RUN pecl install redis && docker-php-ext-enable redis
+
+# Install Composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+# Set working directory
+WORKDIR /app
+
+# Copy composer files first for better layer caching
+COPY composer.json composer.lock* ./
+
+# Install PHP dependencies
+RUN if [ -f composer.lock ]; then composer install --no-scripts --no-autoloader; fi
+
+# Copy application code
+COPY . .
+
+# Set permissions
+RUN chown -R www-data:www-data /app \
+    && chmod -R 755 /app/storage \
+    && chmod -R 755 /app/bootstrap/cache
+
+# Generate autoloader
+RUN composer dump-autoload --optimize
+
+# Create Caddyfile for FrankenPHP
+RUN echo ":8000 {\n\
+    root * /app/public\n\
+    encode zstd gzip\n\
+    php_server\n\
+}" > /etc/caddy/Caddyfile
+
+EXPOSE 8000
+
+# Start FrankenPHP
+CMD ["frankenphp", "run", "--config", "/etc/caddy/Caddyfile"]
