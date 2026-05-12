@@ -1,0 +1,166 @@
+@extends("layouts.app")
+
+@section("content")
+<!-- Hero Slider (JavaScript Simple) -->
+@if($heroSections->count() > 0)
+<section class="relative bg-gradient-to-br from-green-600 to-green-800 text-white" style="height: 600px;" id="heroSlider">
+    
+    @foreach($heroSections as $index => $hero)
+    <div class="hero-slide absolute inset-0 flex items-center justify-center {{ $index === 0 ? 'active' : '' }}" data-slide="{{ $index }}">
+        <div class="absolute inset-0 bg-black bg-opacity-30"></div>
+        
+        <div class="relative z-10 text-center max-w-5xl mx-auto px-4">
+            <div class="mb-8">
+                <span class="inline-flex items-center justify-center w-20 h-20 bg-white bg-opacity-20 rounded-full mb-6 text-4xl animate-pulse">🌱</span>
+            </div>
+
+            <h1 class="text-4xl md:text-6xl font-bold mb-6">
+                <span class="block">{{ $hero->title }}</span>
+                <span class="block text-green-100 mt-2">{{ $hero->subtitle }}</span>
+            </h1>
+
+            <p class="text-lg md:text-xl mb-12 max-w-3xl mx-auto leading-relaxed">{{ $hero->description }}</p>
+
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <a href="tel:+529513084924" class="bg-white text-green-600 hover:bg-green-50 font-bold py-4 px-8 rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+                    📞 Llamar Ahora
+                </a>
+                <a href="https://wa.me/529513084924" target="_blank" class="border-2 border-white text-white hover:bg-white hover:text-green-600 font-bold py-4 px-8 rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+                    💬 WhatsApp
+                </a>
+            </div>
+        </div>
+    </div>
+    @endforeach
+
+    @if($heroSections->count() > 1)
+    <!-- Navigation -->
+    <button onclick="prevSlide()" class="absolute left-4 top-1/2 transform -translate-y-1/2 z-20 bg-white bg-opacity-20 hover:bg-opacity-40 p-4 rounded-full text-white text-xl transition-all">
+        ←
+    </button>
+
+    <button onclick="nextSlide()" class="absolute right-4 top-1/2 transform -translate-y-1/2 z-20 bg-white bg-opacity-20 hover:bg-opacity-40 p-4 rounded-full text-white text-xl transition-all">
+        →
+    </button>
+
+    <!-- Dots -->
+    <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-20 flex space-x-3">
+        @foreach($heroSections as $index => $hero)
+            <button onclick="goToSlide({{ $index }})" class="dot w-4 h-4 rounded-full transition-all bg-white {{ $index === 0 ? 'opacity-100' : 'opacity-50' }}"></button>
+        @endforeach
+    </div>
+    @endif
+</section>
+
+<style>
+.hero-slide {
+    opacity: 0;
+    transition: opacity 0.5s ease-in-out;
+}
+.hero-slide.active {
+    opacity: 1;
+}
+.dot.active {
+    opacity: 1 !important;
+}
+</style>
+
+<script>
+let currentSlide = 0;
+const slides = document.querySelectorAll('.hero-slide');
+const dots = document.querySelectorAll('.dot');
+const totalSlides = slides.length;
+
+function showSlide(index) {
+    // Hide all slides
+    slides.forEach(slide => slide.classList.remove('active'));
+    dots.forEach(dot => dot.classList.remove('active'));
+    
+    // Show current slide
+    if (slides[index]) {
+        slides[index].classList.add('active');
+        dots[index].classList.add('active');
+    }
+    currentSlide = index;
+}
+
+function nextSlide() {
+    const next = (currentSlide + 1) % totalSlides;
+    showSlide(next);
+}
+
+function prevSlide() {
+    const prev = (currentSlide - 1 + totalSlides) % totalSlides;
+    showSlide(prev);
+}
+
+function goToSlide(index) {
+    showSlide(index);
+}
+
+// Auto-advance slides every 5 seconds
+if (totalSlides > 1) {
+    setInterval(nextSlide, 5000);
+}
+</script>
+@endif
+
+<!-- Services Section -->
+@if($featuredServices->count() > 0)
+<section class="py-20 bg-gray-50">
+    <div class="container mx-auto px-4">
+        <div class="text-center mb-16">
+            <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-4">Nuestros Servicios Destacados</h2>
+            <p class="text-lg text-gray-600 max-w-2xl mx-auto">Ofrecemos una amplia gama de servicios de jardinería y paisajismo para transformar tus espacios exteriores</p>
+        </div>
+
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            @foreach($featuredServices as $service)
+            <div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
+                @if($service->image_url)
+                    <img src="{{ $service->image_url }}" alt="{{ $service->title }}" class="w-full h-48 object-cover">
+                @endif
+                
+                <div class="p-6">
+                    <div class="flex items-center mb-3">
+                        <span class="text-2xl mr-3">{{ $service->icon_display }}</span>
+                        <span class="text-sm text-green-600 bg-green-100 px-2 py-1 rounded">{{ $service->category_name }}</span>
+                    </div>
+                    
+                    <h3 class="text-xl font-bold text-gray-800 mb-2">{{ $service->title }}</h3>
+                    <p class="text-gray-600 mb-4">{{ $service->short_description }}</p>
+                    <p class="text-green-600 font-bold text-lg">{{ $service->formatted_price }}</p>
+                </div>
+            </div>
+            @endforeach
+        </div>
+
+        <div class="text-center mt-12">
+            <a href="{{ route('services.index') }}" class="bg-green-600 text-white font-bold py-3 px-8 rounded-lg hover:bg-green-700 transition-colors duration-300">
+                Ver Todos los Servicios
+            </a>
+        </div>
+    </div>
+</section>
+@endif
+
+<!-- Contact CTA Section -->
+<section class="py-20 bg-green-600 text-white">
+    <div class="container mx-auto px-4 text-center">
+        <h2 class="text-3xl md:text-4xl font-bold mb-4">¿Listo para transformar tu jardín?</h2>
+        <p class="text-lg mb-8 max-w-2xl mx-auto">Contáctanos hoy mismo y recibe una cotización gratuita para tu proyecto de jardinería</p>
+        
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+            <a href="tel:+529513084924" class="bg-white text-green-600 hover:bg-green-50 font-bold py-4 px-8 rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+                📞 Llamar Ahora
+            </a>
+            <a href="https://wa.me/529513084924" target="_blank" class="border-2 border-white text-white hover:bg-white hover:text-green-600 font-bold py-4 px-8 rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+                💬 WhatsApp
+            </a>
+            <a href="{{ route('contact.index') }}" class="border-2 border-white text-white hover:bg-white hover:text-green-600 font-bold py-4 px-8 rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+                📧 Contacto
+            </a>
+        </div>
+    </div>
+</section>
+@endsection
