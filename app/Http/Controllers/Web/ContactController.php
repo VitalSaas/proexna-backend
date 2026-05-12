@@ -14,12 +14,17 @@ class ContactController extends Controller
      */
     public function index()
     {
+        // Obtener categorías únicas de servicios activos
         $services = CmsService::active()
-            ->select("category", "category_name")
+            ->select("category")
             ->distinct()
-            ->orderBy("category_name")
+            ->whereNotNull("category")
+            ->orderBy("category")
             ->get()
-            ->pluck("category_name", "category");
+            ->pluck("category")
+            ->mapWithKeys(function ($category) {
+                return [$category => ucfirst(str_replace(["_", "-"], " ", $category))];
+            });
             
         return view("contact.index", compact("services"));
     }
