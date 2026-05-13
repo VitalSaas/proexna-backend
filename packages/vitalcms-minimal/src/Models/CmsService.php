@@ -95,7 +95,7 @@ class CmsService extends Model
             return null;
         }
 
-        return asset('storage/' . config('vitalcms.services.default_image_path', 'services') . '/' . $this->image);
+        return asset('storage/' . ltrim($this->image, '/'));
     }
 
     /**
@@ -139,6 +139,7 @@ class CmsService extends Model
             'paisajismo' => 'Paisajismo',
             'instalacion' => 'Instalación',
             'consulta' => 'Consultoría',
+            'tratamiento' => 'Tratamiento',
         ];
     }
 }

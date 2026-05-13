@@ -90,7 +90,7 @@ class CmsHeroSection extends Model
             return null;
         }
 
-        return asset('storage/' . config('vitalcms.hero_sections.image_upload_path', 'hero-sections') . '/' . $this->background_image);
+        return asset('storage/' . ltrim($this->background_image, '/'));
     }
 
     /**
@@ -102,7 +102,7 @@ class CmsHeroSection extends Model
             return null;
         }
 
-        return asset('storage/' . config('vitalcms.hero_sections.image_upload_path', 'hero-sections') . '/' . $this->hero_image);
+        return asset('storage/' . ltrim($this->hero_image, '/'));
     }
 
     /**
