@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use VitalSaaS\VitalCMSMinimal\Models\CmsContactForm;
+use VitalSaaS\VitalCMSMinimal\Models\CmsContactSubmission;
 use VitalSaaS\VitalCMSMinimal\Models\CmsService;
 
 class ContactController extends Controller
@@ -43,7 +43,7 @@ class ContactController extends Controller
             "service_interest" => ["nullable", "string", "max:100"],
         ]);
         
-        $contact = CmsContactForm::create([
+        $contact = CmsContactSubmission::create([
             "name" => $request->name,
             "email" => $request->email,
             "phone" => $request->phone,
