@@ -21,12 +21,12 @@
 </div>
 
 <!-- Imagen Principal del Servicio -->
-@if($service->image)
+@if($service->image_url)
 <section class="py-12">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="rounded-xl overflow-hidden shadow-xl">
-            <img src="{{ asset("storage/services/" . $service->image) }}" 
-                 alt="{{ $service->title }}" 
+            <img src="{{ $service->image_url }}"
+                 alt="{{ $service->title }}"
                  class="w-full h-96 object-cover">
         </div>
     </div>
@@ -143,9 +143,9 @@
         <div class="grid grid-cols-1 md:grid-cols-{{ $relatedServices->count() > 2 ? "3" : $relatedServices->count() }} gap-8">
             @foreach($relatedServices as $related)
                 <div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
-                    @if($related->image)
-                        <img src="{{ asset("storage/services/" . $related->image) }}" 
-                             alt="{{ $related->title }}" 
+                    @if($related->image_url)
+                        <img src="{{ $related->image_url }}"
+                             alt="{{ $related->title }}"
                              class="w-full h-48 object-cover">
                     @endif
                     <div class="p-6">

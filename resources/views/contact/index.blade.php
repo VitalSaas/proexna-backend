@@ -25,14 +25,6 @@
                 
                 <div class="space-y-6 mb-8">
                     <div class="flex items-start">
-                        <span class="text-3xl mr-4">📍</span>
-                        <div>
-                            <h4 class="font-semibold text-gray-900">Área de Servicio</h4>
-                            <p class="text-gray-600">Servicio a domicilio en toda la región</p>
-                        </div>
-                    </div>
-
-                    <div class="flex items-start">
                         <span class="text-3xl mr-4">📞</span>
                         <div>
                             <h4 class="font-semibold text-gray-900">Teléfono</h4>
