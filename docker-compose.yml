@@ -138,6 +138,9 @@ services:
       - "3030"
     env_file:
       - ./chatbot/.env
+    volumes:
+      - ./chatbot:/app
+      - /app/node_modules
     depends_on:
       - chatwoot-web
     networks:
