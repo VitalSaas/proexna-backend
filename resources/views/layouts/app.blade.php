@@ -261,5 +261,23 @@
     </div>
 
     @stack("scripts")
+
+    <!-- Chatwoot Widget -->
+    <script>
+      (function(d,t) {
+        var BASE_URL="https://chat.proexna.com";
+        var g=d.createElement(t),s=d.getElementsByTagName(t)[0];
+        g.src=BASE_URL+"/packs/js/sdk.js";
+        g.defer = true;
+        g.async = true;
+        s.parentNode.insertBefore(g,s);
+        g.onload=function(){
+          window.chatwootSDK.run({
+            websiteToken: 'Mh1Q4wq3qM1cxLPkygYgG2CL',
+            baseUrl: BASE_URL
+          })
+        }
+      })(document,"script");
+    </script>
 </body>
 </html>
